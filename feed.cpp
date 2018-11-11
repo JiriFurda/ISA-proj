@@ -168,5 +168,5 @@ string Feed::discardHeader(string content)
 
 void Feed::parse(string content)
 {
-	cout << content << endl;
+	Parser parser(content);
 }

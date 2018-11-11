@@ -47,8 +47,6 @@ int main(int argc, char* argv[])
 		url = argv[optind];
 	}
 
-	std::cout << url << "\n";
-
 	Feed feed(url);
 
 	feed.read();
