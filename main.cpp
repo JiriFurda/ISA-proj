@@ -50,8 +50,7 @@ int main(int argc, char* argv[])
 	std::cout << url << "\n";
 
 	Feed feed(url);
-	
-	feed.print();
+
 	feed.read();
 
 

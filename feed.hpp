@@ -12,16 +12,27 @@ using namespace std;
 
 class Feed
 {
-   public:
-      string host;
-      string path;
-      int port;
-      Feed(string url);
-      bool determinePort(string url);
-      bool determineHost(string url);
-      bool determinePath(string url);
-      void print();
-      void read();
+      public:
+            Feed(string url);
+            void read();
+            void dumpInfo();
+
+
+      private:
+            string host;
+            string path;
+            int port;
+            
+            bool determinePort(string url);
+            bool determineHost(string url);
+            bool determinePath(string url);  
+            
+            void connectHost(BIO **bio);
+            void sendRequest(BIO **bio);
+            string readResponse(BIO **bio);
+            string discardHeader(string content);
+
+            void parse(string content);
 };
 
 #endif // __FEED_H_INCLUDED__
