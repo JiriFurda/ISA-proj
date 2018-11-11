@@ -2,13 +2,22 @@
 
 using namespace std;
 
+bool Parser::RSS = 0;
+bool Parser::Atom = 1;
+
 Parser::Parser(string content)
 {
-	//cout << content << endl;
-	
-	
 	xmlNodePtr cur;
 
+	this->init(content);
+	this->determineFormat();
+	this->parse();
+
+	this->print();
+}
+
+void Parser::init(string content)
+{
 	this->doc = xmlParseDoc((const xmlChar *)content.c_str());
 
 	if(this->doc == NULL)
@@ -16,31 +25,72 @@ Parser::Parser(string content)
 		cerr << "Parsing failed" << endl;
 		exit(1);
 	}
+}
 
+void Parser::determineFormat()
+{
+	xmlNodePtr cur;
 	cur = xmlDocGetRootElement(this->doc);
 
-	if (cur == NULL)
+	if(cur == NULL)
 	{
 		fprintf(stderr,"empty document\n");
 		xmlFreeDoc(this->doc);
 		return;
 	}
 
-	if (xmlStrcmp(cur->name, (const xmlChar *)"rss") && xmlStrcmp(cur->name, (const xmlChar *)"feed"))
+	if (!xmlStrcmp(cur->name, (const xmlChar *)"rss"))
+		this->format = this->RSS;
+	else if(!xmlStrcmp(cur->name, (const xmlChar *)"feed"))
+		this->format = this->Atom;
+	else
 	{
 		fprintf(stderr,"document of the wrong type");
 		xmlFreeDoc(this->doc);
 		return;
 	}
+}
+
+void Parser::parse()
+{
+	xmlNodePtr cur;
+
+	// Get root node
+	cur = xmlDocGetRootElement(this->doc);
+
+
+	// Get node containing items
+	if(this->format == this->RSS)	
+	{
+		cur = cur->xmlChildrenNode;
+
+		while(cur != NULL)
+		{
+			if((!xmlStrcmp(cur->name, (const xmlChar *)"channel")))
+			{
+				break;
+			}
+
+			cur = cur->next;
+		}		
+	}
+
+	if(cur == NULL)
+	{
+		fprintf(stderr,"Items container not found");
+		return;
+	}
+
+	this->parseItemsContainer(cur);
+}
+
+void Parser::parseItemsContainer(xmlNodePtr cur)
+{
 
 	cur = cur->xmlChildrenNode;
+
 	while (cur != NULL)
 	{
-		if((!xmlStrcmp(cur->name, (const xmlChar *)"channel")))
-		{
-			cur = cur->xmlChildrenNode;
-		}
-
 		if((!xmlStrcmp(cur->name, (const xmlChar *)"title")))
 		{
 			this->parseTitle(cur);	
@@ -52,14 +102,12 @@ Parser::Parser(string content)
 
 		cur = cur->next;
 	}
-
-	this->print();
 }
 
 void Parser::parseTitle(xmlNodePtr cur)
 {
 	xmlChar *value = xmlNodeListGetString(this->doc, cur->xmlChildrenNode, 1);
-	this->title = string("*** "+string((char*)value)+" ***");
+	this->title = "*** "+string((char*)value)+" ***";
 	xmlFree(value);
 }
 
