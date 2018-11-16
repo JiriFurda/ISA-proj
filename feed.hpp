@@ -29,6 +29,8 @@ class Feed
             bool determinePath(string url);  
             
             void connectHost(BIO **bio);
+            void connectHttpHost(BIO **bio);
+            void connectHttpsHost(BIO **bio);
             void sendRequest(BIO **bio);
             string readResponse(BIO **bio);
             string discardHeader(string content);
