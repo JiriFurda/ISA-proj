@@ -53,6 +53,15 @@ void Parser::determineFormat()
 
 void Parser::parse()
 {
+	if(this->format == this->RSS)
+		this->RSS_parse();
+	else
+		this->Atom_parse();
+}
+
+
+void Parser::RSS_parse()
+{
 	xmlNodePtr cur;
 
 	// Get root node
@@ -60,20 +69,18 @@ void Parser::parse()
 
 
 	// Get node containing items
-	if(this->format == this->RSS)	
+	cur = cur->xmlChildrenNode;
+
+	// Loop throught second level until <channel>
+	while(cur != NULL)
 	{
-		cur = cur->xmlChildrenNode;
-
-		while(cur != NULL)
+		if((!xmlStrcmp(cur->name, (const xmlChar *)"channel")))
 		{
-			if((!xmlStrcmp(cur->name, (const xmlChar *)"channel")))
-			{
-				break;
-			}
+			break;
+		}
 
-			cur = cur->next;
-		}		
-	}
+		cur = cur->next;
+	}		
 
 	if(cur == NULL)
 	{
@@ -81,21 +88,45 @@ void Parser::parse()
 		return;
 	}
 
-	this->parseItemsContainer(cur);
+	this->RSS_parseItemsContainer(cur);
 }
 
-void Parser::parseItemsContainer(xmlNodePtr cur)
+
+void Parser::Atom_parse()
+{
+	xmlNodePtr cur;
+
+	// Get root node
+	cur = xmlDocGetRootElement(this->doc);
+
+
+	cur = cur->xmlChildrenNode;
+
+	// Loop throught second level
+	while(cur != NULL)
+	{
+		
+		if(!xmlStrcmp(cur->name, (const xmlChar *)"title"))
+		{
+			this->parseTitle(cur);	
+		}
+		else if(!xmlStrcmp(cur->name, (const xmlChar *)"entry"))
+		{
+			this->parseItem(cur);
+		}
+
+		cur = cur->next;
+	}		
+}
+
+void Parser::RSS_parseItemsContainer(xmlNodePtr cur)
 {
 
 	cur = cur->xmlChildrenNode;
 
 	while (cur != NULL)
 	{
-		if((!xmlStrcmp(cur->name, (const xmlChar *)"title")))
-		{
-			this->parseTitle(cur);	
-		}
-		else if((!xmlStrcmp(cur->name, (const xmlChar *)"item")))
+		if((!xmlStrcmp(cur->name, (const xmlChar *)"item")))
 		{
 			this->parseItem(cur);
 		}
@@ -113,23 +144,30 @@ void Parser::parseTitle(xmlNodePtr cur)
 
 void Parser::parseItem(xmlNodePtr cur)
 {
-	cur = cur->xmlChildrenNode;
-	while(cur != NULL)
+	Entry entry(cur);
+	cout << entry.toString();
+	/*
+	if(!xmlStrcmp(cur->name, (const xmlChar *)"item")) // RSS
 	{
-		if((!xmlStrcmp(cur->name, (const xmlChar *)"title")))
+		cur = cur->xmlChildrenNode;
+		while(cur != NULL)
 		{
-			xmlChar *value = xmlNodeListGetString(this->doc, cur->xmlChildrenNode, 1);
-			this->output += string((char*)value) + "\n";
-			xmlFree(value);	
-		}
-		else if((!xmlStrcmp(cur->name, (const xmlChar *)"item")))
-		{
-			this->parseItem(cur);
-		}
+			if((!xmlStrcmp(cur->name, (const xmlChar *)"title")))
+			{
+				xmlChar *value = xmlNodeListGetString(this->doc, cur->xmlChildrenNode, 1);
+				this->output += string((char*)value) + "\n";
+				xmlFree(value);	
+			}
+			else if((!xmlStrcmp(cur->name, (const xmlChar *)"item")))
+			{
+				this->parseItem(cur);
+			}
 
-		cur = cur->next;
+			cur = cur->next;
+		}
 	}
-
+	else
+	*/
 }
 
 void Parser::print()

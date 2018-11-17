@@ -152,7 +152,7 @@ void Feed::connectHttpsHost(BIO **bio)
             std::cout<<"Failed connection" << std::endl;
             /* Handle failed connection */
     } else {
-            std::cout<<"Connected" << std::endl;
+            //std::cout<<"Connected" << std::endl;
     }
 
     if(SSL_get_verify_result(ssl) != X509_V_OK)

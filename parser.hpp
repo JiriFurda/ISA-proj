@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <libxml/parser.h>
+#include "entry.hpp"
 
 using namespace std;
 
@@ -23,7 +24,9 @@ class Parser
             void init(string content);
             void determineFormat();
             void parse();
-            void parseItemsContainer(xmlNodePtr cur);
+            void RSS_parse();
+            void Atom_parse();
+            void RSS_parseItemsContainer(xmlNodePtr cur);
             void parseTitle(xmlNodePtr cur);
             void parseItem(xmlNodePtr cur);
             void print();
