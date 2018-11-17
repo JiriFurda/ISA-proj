@@ -76,7 +76,7 @@ void Entry::parseLink(xmlNodePtr cur)
 	}
 }
 
-string Entry::toString()
+string Entry::toString() const
 {
 	string output = "";
 	

@@ -145,7 +145,9 @@ void Parser::parseTitle(xmlNodePtr cur)
 void Parser::parseItem(xmlNodePtr cur)
 {
 	Entry entry(cur);
-	cout << entry.toString();
+	this->entries.push_back(entry);
+
+	//cout << entry.toString();
 	/*
 	if(!xmlStrcmp(cur->name, (const xmlChar *)"item")) // RSS
 	{
@@ -175,7 +177,12 @@ void Parser::print()
 	if(this->title.length())	// != NULL throws strange error, god please don't make me use C++ again.
 		cout << this->title << endl;
 
-	if(this->output.length())
+	/*if(this->output.length())
 		cout << this->output << endl;
-	
+	*/
+	for(auto const& entry: this->entries)
+	{
+    	cout << entry.toString();
+	}
+
 }

@@ -2,6 +2,7 @@
 #define __PARSER_H_INCLUDED__
 
 #include <iostream>
+#include <vector>
 #include <libxml/parser.h>
 #include "entry.hpp"
 
@@ -17,6 +18,7 @@ class Parser
             string title;
             string output;
             xmlDocPtr doc;
+            vector<Entry> entries;
 
             static bool RSS;
             static bool Atom;

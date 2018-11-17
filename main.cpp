@@ -11,7 +11,7 @@ using namespace std;
 int main(int argc, char* argv[])
 {
 	int opt;
-	std::unordered_map<int, int> flags;
+	unordered_map<int, int> flags;
 
 	while((opt = getopt(argc, argv, "f:c:C:Tau")) != -1)
 	{

@@ -10,7 +10,7 @@ class Entry
 {
       public:
             Entry(xmlNodePtr cur);
-            string toString();
+            string toString() const;
 
       private:
             string title;
