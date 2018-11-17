@@ -4,6 +4,7 @@
 #include <iostream>
 #include <vector>
 #include <libxml/parser.h>
+#include <unordered_map>
 #include "entry.hpp"
 
 using namespace std;
@@ -12,6 +13,7 @@ class Parser
 {
       public:
             Parser(string content);
+            string toString(unordered_map<int, int> flags);
 
       private:
             bool format;
@@ -32,6 +34,7 @@ class Parser
             void parseTitle(xmlNodePtr cur);
             void parseItem(xmlNodePtr cur);
             void print();
+            
 };
 
 #endif // __PARSER_H_INCLUDED__

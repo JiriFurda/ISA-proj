@@ -12,8 +12,6 @@ Parser::Parser(string content)
 	this->init(content);
 	this->determineFormat();
 	this->parse();
-
-	this->print();
 }
 
 void Parser::init(string content)
@@ -172,17 +170,17 @@ void Parser::parseItem(xmlNodePtr cur)
 	*/
 }
 
-void Parser::print()
+string Parser::toString(unordered_map<int, int> flags)
 {
-	if(this->title.length())	// != NULL throws strange error, god please don't make me use C++ again.
-		cout << this->title << endl;
+	string output;
 
-	/*if(this->output.length())
-		cout << this->output << endl;
-	*/
+	if(this->title.length())
+		output += this->title + "\n";
+
 	for(auto const& entry: this->entries)
 	{
-    	cout << entry.toString();
+    	output += entry.toString(flags);
 	}
 
+	return output;
 }

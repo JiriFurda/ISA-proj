@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <libxml/parser.h>
+#include <unordered_map>
 
 using namespace std;
 
@@ -10,7 +11,7 @@ class Entry
 {
       public:
             Entry(xmlNodePtr cur);
-            string toString() const;
+            string toString(unordered_map<int, int> flags) const;
 
       private:
             string title;

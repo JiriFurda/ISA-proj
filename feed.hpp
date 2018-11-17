@@ -4,6 +4,7 @@
 #include <iostream>
 #include <regex>
 #include <string>
+#include <unordered_map>
 #include "openssl/bio.h"
 #include "openssl/ssl.h"
 #include "openssl/err.h"
@@ -15,7 +16,7 @@ class Feed
 {
       public:
             Feed(string url);
-            void read();
+            void read(unordered_map<int, int> flags);
             void dumpInfo();
 
 
@@ -34,8 +35,7 @@ class Feed
             void sendRequest(BIO **bio);
             string readResponse(BIO **bio);
             string discardHeader(string content);
-
-            void parse(string content);
+            void parse(string content, unordered_map<int, int> flags);
 };
 
 #endif // __FEED_H_INCLUDED__

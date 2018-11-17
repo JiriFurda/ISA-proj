@@ -61,7 +61,7 @@ void Feed::dumpInfo()
 	cout << this->path << "\n";
 }
 
-void Feed::read()
+void Feed::read(unordered_map<int, int> flags)
 {
 	BIO *bio;
 
@@ -73,7 +73,7 @@ void Feed::read()
     ERR_print_errors_fp(stderr);
     BIO_free_all(bio);
 
-    this->parse(content);
+    this->parse(content, flags);
 }
 
 
@@ -234,7 +234,9 @@ string Feed::discardHeader(string content)
 	return content.substr(pos);
 }
 
-void Feed::parse(string content)
+void Feed::parse(string content, unordered_map<int, int> flags)
 {
 	Parser parser(content);
+
+	cout << parser.toString(flags);
 }

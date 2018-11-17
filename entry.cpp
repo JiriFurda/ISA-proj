@@ -76,21 +76,26 @@ void Entry::parseLink(xmlNodePtr cur)
 	}
 }
 
-string Entry::toString() const
+string Entry::toString(unordered_map<int, int> flags) const
 {
 	string output = "";
+	bool printURL = flags.count('u');
+	bool printUpdated = flags.count('T');
+	bool printAuthor = flags.count('a');
 	
 	if(this->title.length())
 	{
 		output += this->title + '\n';
 
-		if(this->url.length())
+		if(printURL && this->url.length())
 			output += "URL: " + this->url + '\n';
 
-		if(this->updated.length())
+		if(printUpdated && this->updated.length())
 			output += "Aktualizace: " + this->updated + '\n';
 
-		
+		// Extra line between entries
+		if(printURL || printUpdated || printAuthor)
+			output += '\n';
 	}
 	
 	return output;

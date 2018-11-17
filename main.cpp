@@ -48,8 +48,8 @@ int main(int argc, char* argv[])
 	}
 
 	Feed feed(url);
-
-	feed.read();
+	
+	feed.read(flags);
 
 
 	return 0;
