@@ -19,7 +19,7 @@ class Entry
             string url;
 
             void parseTitle(xmlNodePtr cur);
-            void parseDate(xmlNodePtr cur);
+            void parseDcDate(xmlNodePtr cur);
             void parsePubDate(xmlNodePtr cur);
             void parseUpdated(xmlNodePtr cur);
             void parseDcCreator(xmlNodePtr cur);

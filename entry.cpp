@@ -13,7 +13,7 @@ Entry::Entry(xmlNodePtr cur)
 		}
 		else if(!xmlStrcmp(cur->name, (const xmlChar *)"dc:date"))
 		{
-			this->parseDate(cur);
+			this->parseDcDate(cur);
 		}
 		else if(!xmlStrcmp(cur->name, (const xmlChar *)"pubDate"))
 		{
@@ -50,14 +50,16 @@ void Entry::parseTitle(xmlNodePtr cur)
 	*/
 }
 
-void Entry::parseDate(xmlNodePtr cur)
+void Entry::parseDcDate(xmlNodePtr cur)
 {}
 
 void Entry::parsePubDate(xmlNodePtr cur)
 {}
 
 void Entry::parseUpdated(xmlNodePtr cur)
-{}
+{
+	this->updated = string((char*)XML_GET_CONTENT(cur->children));
+}
 
 void Entry::parseDcCreator(xmlNodePtr cur)
 {}
@@ -66,14 +68,30 @@ void Entry::parseAuthor(xmlNodePtr cur)
 {}
 
 void Entry::parseLink(xmlNodePtr cur)
-{}
+{
+	xmlChar *href;
+	if(href = xmlGetProp(cur, (const xmlChar *)"href"))
+	{
+		this->url = string((char*)href);
+	}
+}
 
 string Entry::toString()
 {
 	string output = "";
 	
-	//if(this->title != NULL)
-	output += this->title;
-	output += '\n';
+	if(this->title.length())
+	{
+		output += this->title + '\n';
+
+		if(this->url.length())
+			output += "URL: " + this->url + '\n';
+
+		if(this->updated.length())
+			output += "Aktualizace: " + this->updated + '\n';
+
+		
+	}
+	
 	return output;
 }
