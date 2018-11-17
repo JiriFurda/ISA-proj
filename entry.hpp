@@ -4,6 +4,7 @@
 #include <iostream>
 #include <libxml/parser.h>
 #include <unordered_map>
+#include <vector>
 
 using namespace std;
 
@@ -16,12 +17,10 @@ class Entry
       private:
             string title;
             string updated;
-            string author;
+            vector<string> authors;
             string url;
 
             void parseTitle(xmlNodePtr cur);
-            void parseDcDate(xmlNodePtr cur);
-            void parsePubDate(xmlNodePtr cur);
             void parseUpdated(xmlNodePtr cur);
             void parseDcCreator(xmlNodePtr cur);
             void parseAuthor(xmlNodePtr cur);

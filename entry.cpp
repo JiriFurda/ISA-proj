@@ -11,15 +11,9 @@ Entry::Entry(xmlNodePtr cur)
 		{
 			this->parseTitle(cur);
 		}
-		else if(!xmlStrcmp(cur->name, (const xmlChar *)"dc:date"))
-		{
-			this->parseDcDate(cur);
-		}
-		else if(!xmlStrcmp(cur->name, (const xmlChar *)"pubDate"))
-		{
-			this->parsePubDate(cur);
-		}
-		else if(!xmlStrcmp(cur->name, (const xmlChar *)"updated"))
+		else if(!xmlStrcmp(cur->name, (const xmlChar *)"dc:date") ||
+				!xmlStrcmp(cur->name, (const xmlChar *)"pubDate") ||
+				!xmlStrcmp(cur->name, (const xmlChar *)"updated"))
 		{
 			this->parseUpdated(cur);
 		}
@@ -43,18 +37,7 @@ Entry::Entry(xmlNodePtr cur)
 void Entry::parseTitle(xmlNodePtr cur)
 {
 	this->title = string((char*)XML_GET_CONTENT(cur->children));
-	/*
-	xmlChar *value = xmlNodeListGetString(this->doc, cur->xmlChildrenNode, 1);
-	this->title = string((char*)value);
-	xmlFree(value);
-	*/
 }
-
-void Entry::parseDcDate(xmlNodePtr cur)
-{}
-
-void Entry::parsePubDate(xmlNodePtr cur)
-{}
 
 void Entry::parseUpdated(xmlNodePtr cur)
 {
@@ -62,10 +45,29 @@ void Entry::parseUpdated(xmlNodePtr cur)
 }
 
 void Entry::parseDcCreator(xmlNodePtr cur)
-{}
+{
+	this->authors.push_back(string((char*)XML_GET_CONTENT(cur->children)));
+}
 
 void Entry::parseAuthor(xmlNodePtr cur)
-{}
+{
+	if(cur->xmlChildrenNode == NULL)
+	{
+		this->authors.push_back(string((char*)XML_GET_CONTENT(cur->children)));
+	}
+	else
+	{
+		cur = cur->xmlChildrenNode; // Dive into <author> tag
+
+		while(cur != NULL)
+		{
+			if(!xmlStrcmp(cur->name, (const xmlChar *)"name"))
+				this->authors.push_back(string((char*)XML_GET_CONTENT(cur->children)));
+
+			cur = cur->next;
+		}
+	}
+}
 
 void Entry::parseLink(xmlNodePtr cur)
 {
@@ -92,6 +94,13 @@ string Entry::toString(unordered_map<int, int> flags) const
 
 		if(printUpdated && this->updated.length())
 			output += "Aktualizace: " + this->updated + '\n';
+
+		if(printAuthor)
+		{
+			for(const string& author : this->authors) {
+			  output += "Autor: " + author + '\n';
+			}
+		}
 
 		// Extra line between entries
 		if(printURL || printUpdated || printAuthor)
