@@ -1,7 +1,9 @@
 #include "feed.hpp"
 
-Feed::Feed(string url)
+Feed::Feed(Program *program, string url)
 {
+	this->program = program;
+
 	this->determinePort(url);
 	this->determineHost(url);
 	this->determinePath(url);
@@ -59,7 +61,7 @@ void Feed::dumpInfo()
 	cout << this->path << "\n";
 }
 
-void Feed::read(unordered_map<int, int> flags)
+void Feed::read()
 {
 	BIO *bio;
 
@@ -71,7 +73,7 @@ void Feed::read(unordered_map<int, int> flags)
     ERR_print_errors_fp(stderr);
     BIO_free_all(bio);
 
-    this->parse(content, flags);
+    this->parse(content, this->program->flags);
 }
 
 

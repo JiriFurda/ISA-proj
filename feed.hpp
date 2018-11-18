@@ -9,14 +9,17 @@
 #include "openssl/ssl.h"
 #include "openssl/err.h"
 #include "parser.hpp"
+#include "program.hpp"
 
 using namespace std;
+
+class Program;
 
 class Feed
 {
       public:
-            Feed(string url);
-            void read(unordered_map<int, int> flags);
+            Feed(Program *program, string url);
+            void read();
             void dumpInfo();
 
 
@@ -24,6 +27,8 @@ class Feed
             string host;
             string path;
             int port;
+            Program *program;
+            
             
             bool determinePort(string url);
             bool determineHost(string url);

@@ -44,7 +44,7 @@ void Program::processArguments(int argc, char* argv[])
 			exit(1);			
 		}
 
-		this->feeds.push_back(Feed(argv[optind]));
+		this->feeds.push_back(Feed(this, argv[optind]));
 	}
 
 
@@ -59,7 +59,7 @@ void Program::execute()
 {
 	for(int i=0; i < this->feeds.size(); i++)
 	{
-		feeds[i].read(this->flags);
+		feeds[i].read();
 
 		if(i+1 < this->feeds.size())
 			cout << "\n";
@@ -84,7 +84,7 @@ void Program::processFeedFile()
 			}
 
 
-	        this->feeds.push_back(Feed(line));
+	        this->feeds.push_back(Feed(this, line));
 	    }
 	    
 	    file.close();
