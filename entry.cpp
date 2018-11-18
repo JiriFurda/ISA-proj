@@ -11,13 +11,19 @@ Entry::Entry(xmlNodePtr cur)
 		{
 			this->parseTitle(cur);
 		}
-		else if(!xmlStrcmp(cur->name, (const xmlChar *)"dc:date") ||
-				!xmlStrcmp(cur->name, (const xmlChar *)"pubDate") ||
-				!xmlStrcmp(cur->name, (const xmlChar *)"updated"))
+		else if(!xmlStrcmp(cur->name, (const xmlChar *)"pubDate") ||
+				!xmlStrcmp(cur->name, (const xmlChar *)"updated") ||
+				(
+					!xmlStrcmp(cur->name, (const xmlChar *)"date") &&
+					cur->ns &&
+					!xmlStrcmp(cur->ns->prefix, (const xmlChar *)"dc")
+				))
 		{
 			this->parseUpdated(cur);
 		}
-		else if(!xmlStrcmp(cur->name, (const xmlChar *)"dc:creator"))
+		else if(!xmlStrcmp(cur->name, (const xmlChar *)"creator") &&
+				cur->ns &&
+				!xmlStrcmp(cur->ns->prefix, (const xmlChar *)"dc"))
 		{
 			this->parseDcCreator(cur);
 		}
