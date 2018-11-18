@@ -174,7 +174,7 @@ void Parser::parseItem(xmlNodePtr cur)
 	*/
 }
 
-string Parser::toString(unordered_map<int, int> flags)
+string Parser::toString(unordered_multimap<int, string> flags)
 {
 	string output;
 

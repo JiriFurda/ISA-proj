@@ -13,7 +13,7 @@ class Parser
 {
       public:
             Parser(string content);
-            string toString(unordered_map<int, int> flags);
+            string toString(unordered_multimap<int, string> flags);
 
       private:
             bool format;

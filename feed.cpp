@@ -130,15 +130,7 @@ void Feed::connectHttpsHost(BIO **bio)
             ERR_print_errors_fp(stderr);
     }
 
-    /*
-    if(!SSL_CTX_load_verify_locations(ctx, "/tmp/openssl-0.9.8e/certs/vsign1.pem", NULL))
-    {
-        // Handle failed load here
-            std::cout << "Faild load verify locations" << std::endl;
-
-    }	@see https://www.openssl.org/docs/man1.1.0/ssl/SSL_CTX_set_default_verify_paths.html
-    */
-   SSL_CTX_set_default_verify_paths(ctx);
+    this->setupCertificates(&ctx);
 
     *bio = BIO_new_ssl_connect(ctx);
     BIO_get_ssl(*bio, & ssl);
@@ -164,6 +156,24 @@ void Feed::connectHttpsHost(BIO **bio)
     //do not exit here (but some more verification would not hurt) because if you are using a self-signed certificate you will receive 18
     //18 X509_V_ERR_DEPTH_ZERO_SELF_SIGNED_CERT which is not an error
     }
+}
+
+void Feed::setupCertificates(SSL_CTX **ctx)
+{
+    /*
+    if(!SSL_CTX_load_verify_locations(ctx, "/tmp/openssl-0.9.8e/certs/vsign1.pem", NULL))
+    {
+        // Handle failed load here
+            std::cout << "Faild load verify locations" << std::endl;
+
+    }	@see https://www.openssl.org/docs/man1.1.0/ssl/SSL_CTX_set_default_verify_paths.html
+    */
+   
+	bool certFileUsed = (this->program->flags.count('c') != 0);
+	bool certFolderUsed = (this->program->flags.count('C') != 0);
+
+	if(!certFileUsed && !certFolderUsed)
+		SSL_CTX_set_default_verify_paths(*ctx);
 }
 
 void Feed::sendRequest(BIO **bio)
@@ -234,7 +244,7 @@ string Feed::discardHeader(string content)
 	return content.substr(pos);
 }
 
-void Feed::parse(string content, unordered_map<int, int> flags)
+void Feed::parse(string content, unordered_multimap<int, string> flags)
 {
 	Parser parser(content);
 

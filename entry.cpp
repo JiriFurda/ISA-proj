@@ -78,7 +78,7 @@ void Entry::parseLink(xmlNodePtr cur)
 	}
 }
 
-string Entry::toString(unordered_map<int, int> flags) const
+string Entry::toString(unordered_multimap<int, string> flags) const
 {
 	string output = "";
 	bool printURL = flags.count('u');

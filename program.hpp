@@ -24,13 +24,11 @@ class Program
 {
       public:
             Program(int argc, char* argv[]);
-            unordered_map<int, int> flags;
+            unordered_multimap<int, string> flags;
             vector<Feed> feeds;
 
 
       private:
-            char* feedFile;
-
             void processArguments(int argc, char* argv[]);
             void execute();
             void processFeedFile();

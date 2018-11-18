@@ -37,10 +37,11 @@ class Feed
             void connectHost(BIO **bio);
             void connectHttpHost(BIO **bio);
             void connectHttpsHost(BIO **bio);
+            void setupCertificates(SSL_CTX **ctx);
             void sendRequest(BIO **bio);
             string readResponse(BIO **bio);
             string discardHeader(string content);
-            void parse(string content, unordered_map<int, int> flags);
+            void parse(string content, unordered_multimap<int, string> flags);
 };
 
 #endif // __FEED_H_INCLUDED__

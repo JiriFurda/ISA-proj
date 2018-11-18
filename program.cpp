@@ -21,14 +21,12 @@ void Program::processArguments(int argc, char* argv[])
 			case 'T':
 			case 'a':
 			case 'u':
-				this->flags[opt] = true;
+				this->flags.insert({opt, ""});
 				break;
 			case 'f':
-				this->feedFile = optarg;
 			case 'c':
 			case 'C':
-				this->flags[opt] = true;
-				//flags[opt] = optarg;
+				this->flags.insert({opt, optarg});
 				break;
 			default: // '?' 
 				fprintf(stderr, "Usage: %s <URL | -f <feedfile>> [-c <certfile>] [-C <certaddr>] [-T] [-a] [-u]\n", argv[0]);
@@ -38,7 +36,7 @@ void Program::processArguments(int argc, char* argv[])
 
 	if(optind < argc)	// has URL parameter
 	{
-		if(this->flags['f'])
+		if(this->flags.count('f'))
 		{
 			fprintf(stderr, "Error: Cannot combine URL parameter with -f option");
 			exit(1);			
@@ -47,8 +45,7 @@ void Program::processArguments(int argc, char* argv[])
 		this->feeds.push_back(Feed(this, argv[optind]));
 	}
 
-
-	if(this->flags['f'])
+	if(this->flags.count('f'))
 	{
 		this->processFeedFile();			
 	}	
@@ -68,30 +65,36 @@ void Program::execute()
 
 void Program::processFeedFile()
 {
-	ifstream file(this->feedFile);
-
-	if(file.is_open())
+	for(auto const& flag: this->flags)
 	{
-	    string line;
-	    
-	    while(getline(file, line))
-	    {
-	    	smatch matches;
-			if(regex_search(line, matches, regex("^\\s*#")) ||
-				line.length() == 0)
-			{
-		        continue;
-			}
+		if(flag.first != 'f')
+			continue; // I hate c++
+
+		ifstream file(flag.second);
+
+		if(file.is_open())
+		{
+		    string line;
+		    
+		    while(getline(file, line))
+		    {
+		    	smatch matches;
+				if(regex_search(line, matches, regex("^\\s*#")) ||
+					line.length() == 0)
+				{
+			        continue;
+				}
 
 
-	        this->feeds.push_back(Feed(this, line));
-	    }
-	    
-	    file.close();
-	}
-	else
-	{
-		fprintf(stderr, "Error: File problem");
-		exit(1);
+		        this->feeds.push_back(Feed(this, line));
+		    }
+		    
+		    file.close();
+		}
+		else
+		{
+			fprintf(stderr, "Error: File problem");
+			exit(1);
+		}
 	}
 }

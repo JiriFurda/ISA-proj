@@ -12,7 +12,7 @@ class Entry
 {
       public:
             Entry(xmlNodePtr cur);
-            string toString(unordered_map<int, int> flags) const;
+            string toString(unordered_multimap<int, string> flags) const;
 
       private:
             string title;
