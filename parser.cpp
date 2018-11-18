@@ -124,7 +124,11 @@ void Parser::RSS_parseItemsContainer(xmlNodePtr cur)
 
 	while (cur != NULL)
 	{
-		if((!xmlStrcmp(cur->name, (const xmlChar *)"item")))
+		if(!xmlStrcmp(cur->name, (const xmlChar *)"title"))
+		{
+			this->parseTitle(cur);	
+		}
+		else if((!xmlStrcmp(cur->name, (const xmlChar *)"item")))
 		{
 			this->parseItem(cur);
 		}
