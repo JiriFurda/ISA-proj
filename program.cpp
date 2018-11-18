@@ -57,9 +57,12 @@ void Program::processArguments(int argc, char* argv[])
 
 void Program::execute()
 {
-	for(auto & feed : this->feeds)
+	for(int i=0; i < this->feeds.size(); i++)
 	{
-		feed.read(this->flags);
+		feeds[i].read(this->flags);
+
+		if(i+1 < this->feeds.size())
+			cout << "\n";
 	}
 }
 
