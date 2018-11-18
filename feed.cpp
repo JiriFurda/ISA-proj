@@ -1,7 +1,5 @@
 #include "feed.hpp"
 
-using namespace std;
-
 Feed::Feed(string url)
 {
 	this->determinePort(url);
