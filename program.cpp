@@ -24,6 +24,7 @@ void Program::processArguments(int argc, char* argv[])
 				this->flags[opt] = true;
 				break;
 			case 'f':
+				this->feedFile = optarg;
 			case 'c':
 			case 'C':
 				this->flags[opt] = true;
@@ -45,6 +46,12 @@ void Program::processArguments(int argc, char* argv[])
 
 		this->feeds.push_back(Feed(argv[optind]));
 	}
+
+
+	if(this->flags['f'])
+	{
+		this->processFeedFile();			
+	}	
 }
 
 
@@ -53,5 +60,34 @@ void Program::execute()
 	for(auto & feed : this->feeds)
 	{
 		feed.read(this->flags);
+	}
+}
+
+void Program::processFeedFile()
+{
+	ifstream file(this->feedFile);
+
+	if(file.is_open())
+	{
+	    string line;
+	    
+	    while(getline(file, line))
+	    {
+	    	smatch matches;
+			if(regex_search(line, matches, regex("^\\s*#")))
+			{
+		        continue;
+			}
+
+
+	        this->feeds.push_back(Feed(line));
+	    }
+	    
+	    file.close();
+	}
+	else
+	{
+		fprintf(stderr, "Error: File problem");
+		exit(1);
 	}
 }
