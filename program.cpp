@@ -77,7 +77,8 @@ void Program::processFeedFile()
 	    while(getline(file, line))
 	    {
 	    	smatch matches;
-			if(regex_search(line, matches, regex("^\\s*#")))
+			if(regex_search(line, matches, regex("^\\s*#")) ||
+				line.length() == 0)
 			{
 		        continue;
 			}
