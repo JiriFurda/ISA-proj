@@ -66,13 +66,16 @@ bool Feed::read()
 	BIO *bio;
 
 	if(!this->connectHost(&bio))
-	{
-		BIO_free_all(bio);
-		return false;
-	}
+		return this->closeBio(&bio);
 
 	this->sendRequest(&bio);
+
+
 	string response = this->readResponse(&bio);
+
+	if(!this->checkHeader(response))
+		return this->closeBio(&bio);
+
 	string content = this->discardHeader(response);
 
     BIO_free_all(bio);
@@ -80,6 +83,12 @@ bool Feed::read()
     this->parse(content, this->program->flags);
 
     return true;
+}
+
+bool Feed::closeBio(BIO **bio)
+{
+	BIO_free_all(*bio);
+	return false;	
 }
 
 
@@ -242,6 +251,19 @@ string Feed::readResponse(BIO **bio)
     }
 
     return response;
+}
+
+
+bool Feed::checkHeader(string content)
+{
+	string responseCode(content.substr(9, 3)); 
+	if(responseCode != "200")
+	{
+		cerr << "ERROR: Unexpected HTTP response code " << responseCode << "\n";
+	    return false;			
+	}
+
+	return true;
 }
 
 

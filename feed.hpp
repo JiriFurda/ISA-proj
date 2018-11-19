@@ -33,13 +33,14 @@ class Feed
             bool determinePort(string url);
             bool determineHost(string url);
             bool determinePath(string url);  
-            
+            bool closeBio(BIO **bio);
             bool connectHost(BIO **bio);
             bool connectHttpHost(BIO **bio);
             bool connectHttpsHost(BIO **bio);
             void setupCertificates(SSL_CTX **ctx);
             void sendRequest(BIO **bio);
             string readResponse(BIO **bio);
+            bool checkHeader(string content);
             string discardHeader(string content);
             void parse(string content, unordered_multimap<int, string> flags);
 };
