@@ -1,50 +1,59 @@
 #include "program.hpp"
 
+
 Program::Program(int argc, char* argv[])
 {
-	string url;
-
-
 	this->processArguments(argc, argv);
-
 	this->execute();
-
 }
+
 
 void Program::processArguments(int argc, char* argv[])
 {
+	// Read arguments
 	int opt;
 	while((opt = getopt(argc, argv, "f:c:C:Tau")) != -1)
 	{
 		switch(opt)
 		{
+			// Flags without value
 			case 'T':
 			case 'a':
 			case 'u':
 				this->flags.insert({opt, ""});
 				break;
+
+			// Flags with value
 			case 'f':
 			case 'c':
 			case 'C':
 				this->flags.insert({opt, optarg});
 				break;
-			default: // '?' 
+
+			// Wrong flag
+			default: 
 				cerr << "Usage: feedreader <URL | -f <feedfile>> [-c <certfile>] [-C <certaddr>] [-T] [-a] [-u]\n";
 				exit(1);
 	   }
 	}
 
-	if(optind < argc)	// has URL parameter
+
+	// Check if URL is specified
+	if(optind < argc)
 	{
+		// Check wrong arguments combination
 		if(this->flags.count('f'))
 		{
 			fprintf(stderr, "Error: Cannot combine URL parameter with -f option");
 			exit(1);			
 		}
 
+		// Save the URL to feeds
 		this->feeds.push_back(Feed(this, argv[optind]));
 	}
 
+
+	// Check if feedfile was specified
 	if(this->flags.count('f'))
 	{
 		this->processFeedFile();			
@@ -54,6 +63,7 @@ void Program::processArguments(int argc, char* argv[])
 
 void Program::execute()
 {
+	// Read every feed used
 	for(int i=0; i < this->feeds.size(); i++)
 	{
 		feeds[i].read();
@@ -65,19 +75,23 @@ void Program::execute()
 
 void Program::processFeedFile()
 {
+	// Loop throught every flag
 	for(auto const& flag: this->flags)
 	{
+		// Skip if not -f flag
 		if(flag.first != 'f')
-			continue; // I hate c++
+			continue; // I hate C++
 
+		// Read file
 		ifstream file(flag.second);
-
 		if(file.is_open())
 		{
 		    string line;
 		    
+		    // Read line by line
 		    while(getline(file, line))
 		    {
+		    	// Skip commentaries and empty lines
 		    	smatch matches;
 				if(regex_search(line, matches, regex("^\\s*#")) ||
 					line.length() == 0)
@@ -85,10 +99,11 @@ void Program::processFeedFile()
 			        continue;
 				}
 
-
+				// Save feed URL
 		        this->feeds.push_back(Feed(this, line));
 		    }
 		    
+		    // Close file
 		    file.close();
 		}
 		else

@@ -2,6 +2,7 @@
 
 Feed::Feed(Program *program, string url)
 {
+	// Save pointer to the program (to have access to flags)
 	this->program = program;
 
 	this->determinePort(url);
