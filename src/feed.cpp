@@ -144,7 +144,7 @@ bool Feed::read()
 
     // Parse the response
     if(!this->parse(content, this->program->flags))
-    
+		return false;
 
     return true;
 }
