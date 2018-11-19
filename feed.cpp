@@ -160,38 +160,56 @@ void Feed::connectHttpsHost(BIO **bio)
 
 void Feed::setupCertificates(SSL_CTX **ctx)
 {
-    /*
-    if(!SSL_CTX_load_verify_locations(ctx, "/tmp/openssl-0.9.8e/certs/vsign1.pem", NULL))
-    {
-        // Handle failed load here
-            std::cout << "Faild load verify locations" << std::endl;
-
-    }	@see https://www.openssl.org/docs/man1.1.0/ssl/SSL_CTX_set_default_verify_paths.html
-    */
-   
+	// Check if certification parameteres were used
 	bool certFileUsed = (this->program->flags.count('c') != 0);
 	bool certFolderUsed = (this->program->flags.count('C') != 0);
 
+	// Set default location when certificates weren't used
 	if(!certFileUsed && !certFolderUsed)
+	{
 		SSL_CTX_set_default_verify_paths(*ctx);
+		return;
+	}
+
+	// Loop through used parameters
+	for(auto const& flag: this->program->flags)
+	{
+		// Process parameter -c
+		if(flag.first == 'c')
+		{
+			if(!SSL_CTX_load_verify_locations(*ctx, NULL, flag.second.c_str()))
+			{
+				cerr << "ERROR: File specified in -c parameter failed to load\n";
+			}
+		}
+		// Process parameter -C
+		else if(flag.first == 'C')
+		{
+			if(!SSL_CTX_load_verify_locations(*ctx, flag.second.c_str(), NULL))
+			{
+				cerr << "ERROR: Location specified in -C parameter failed to load\n";
+			}
+		}
+	}
+
 }
 
 void Feed::sendRequest(BIO **bio)
 {
-	
+	// Prepare HTTP request
 	string httpRequest("GET /"+this->path+" HTTP/1.0\r\n"
 					"HOST: "+this->host+"\r\n"
 					"User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36\r\n"
 					"Connection: close\r\n\r\n");
-
     const char *httpRequestC = httpRequest.c_str();
 
+    // Send HTTP request
     if(BIO_write(*bio, httpRequestC, strlen(httpRequestC)) <= 0)
     {
             if(!BIO_should_retry(*bio))
             {
                 // Handle failed write here
-            	std::cerr << "Failed write" << std::endl;
+            	cerr << "Failed write" << std::endl;
             }
         	// Do something to handle the retry 
             std::cerr << "Failed write (retrying)" << std::endl;
