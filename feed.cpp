@@ -11,6 +11,7 @@ Feed::Feed(Program *program, string url)
 		this->valid = true;
 }
 
+
 bool Feed::determinePort(string url)
 {
 	// Determine if secure connection should be used
@@ -34,7 +35,7 @@ bool Feed::determinePort(string url)
         	this->port = stoi(matches[1]);
     	else
     	{
-    		cerr << "ERROR: Unexpected error in reading specified port\n";
+    		cerr << "ERROR: Unexpected error in determining specified port\n";
     		return false;
     	}
 	}
@@ -51,6 +52,7 @@ bool Feed::determinePort(string url)
 	return true;
 }
 
+
 bool Feed::determineHost(string url)
 {
 	smatch matches;
@@ -59,7 +61,10 @@ bool Feed::determineHost(string url)
         if(matches.size() == 2)
         	this->host = matches[1];
     	else
+    	{
+    		cerr << "ERROR: Unexpected error in determining hostgname\n";
     		return false;
+    	}
 	}
 	else
 	{
@@ -69,6 +74,7 @@ bool Feed::determineHost(string url)
 
 	return true;
 }
+
 
 bool Feed::determinePath(string url)
 {
@@ -87,6 +93,7 @@ bool Feed::determinePath(string url)
 	return true;
 }
 
+
 void Feed::dumpInfo()
 {
 	cout << this->host << "\n";
@@ -94,25 +101,41 @@ void Feed::dumpInfo()
 	cout << this->path << "\n";
 }
 
+
 bool Feed::read()
 {
 	BIO *bio;
 
+	// Connect to server
 	if(!this->connectHost(&bio))
 		return this->closeBio(&bio);
 
-	this->sendRequest(&bio);
+	// Send HTTP request to server
+	if(!this->sendRequest(&bio))
+		return this->closeBio(&bio);
 
-
+	// Get HTTP response from server
 	string response = this->readResponse(&bio);
 
+	// Verify returned status code from server
 	if(!this->checkHeader(response))
 		return this->closeBio(&bio);
 
-	string content = this->discardHeader(response);
+	// Truncate header from the response
+	string content;
+	try
+	{
+		content = this->discardHeader(response);
+	}
+	catch(bool x)
+	{
+		return this->closeBio(&bio);
+	}
 
+	// Close connection
     BIO_free_all(bio);
 
+    // Parse the response
     this->parse(content, this->program->flags);
 
     return true;
@@ -171,34 +194,37 @@ bool Feed::connectHttpsHost(BIO **bio)
 	SSL *ssl;
     SSL_CTX *ctx;
 
+    // Init SSL stuff
 	SSL_load_error_strings();
 	ERR_load_BIO_strings();
 	OpenSSL_add_all_algorithms();
 	SSL_library_init();
 
+	// Create context structure
     ctx = SSL_CTX_new(SSLv23_client_method());
-
     if (ctx == NULL)
     {
         cerr << "ERROR: Couldn't create context strucutre\n";
         return false;
     }
 
+    // Setup ceritificates locations
     this->setupCertificates(&ctx);
 
+    // Setup SSL connection
     *bio = BIO_new_ssl_connect(ctx);
     BIO_get_ssl(*bio, & ssl);
     SSL_set_mode(ssl, SSL_MODE_AUTO_RETRY);
-
-    //replace with your own test server
 	BIO_set_conn_hostname(*bio, string(this->host+":"+to_string(this->port)).c_str());
 
+	// Connect to server
     if(BIO_do_connect(*bio) <= 0)
     {
         cerr << "ERROR: Connection failed\n";
         return false;
     }
 
+    // Verify certificate
     long int verifyResult = SSL_get_verify_result(ssl);
     if(verifyResult != X509_V_OK &&
     	verifyResult != X509_V_ERR_DEPTH_ZERO_SELF_SIGNED_CERT)
@@ -230,23 +256,19 @@ void Feed::setupCertificates(SSL_CTX **ctx)
 		if(flag.first == 'c')
 		{
 			if(!SSL_CTX_load_verify_locations(*ctx, flag.second.c_str(), NULL))
-			{
 				cerr << "ERROR: File specified in -c parameter failed to load\n";
-			}
 		}
 		// Process parameter -C
 		else if(flag.first == 'C')
 		{
 			if(!SSL_CTX_load_verify_locations(*ctx, NULL, flag.second.c_str()))
-			{
 				cerr << "ERROR: Location specified in -C parameter failed to load\n";
-			}
 		}
 	}
 
 }
 
-void Feed::sendRequest(BIO **bio)
+bool Feed::sendRequest(BIO **bio)
 {
 	// Prepare HTTP request
 	string httpRequest("GET /"+this->path+" HTTP/1.0\r\n"
@@ -260,31 +282,39 @@ void Feed::sendRequest(BIO **bio)
     {
             if(!BIO_should_retry(*bio))
             {
-                // Handle failed write here
-            	cerr << "Failed write" << std::endl;
+            	cerr << "ERROR: Cannot send request\n";
+            	return false;
             }
-        	// Do something to handle the retry 
-            std::cerr << "Failed write (retrying)" << std::endl;
+        	
+            cerr << "ERROR: Cannot send request - Trying again\n";
     }
     
+    return true;
 }
 
 
 string Feed::readResponse(BIO **bio)
 {
-	
-	char buffer[65535];	
-	memset(buffer, '\0', sizeof(buffer)); 	// Earse buffer
-    int len;
-    string response;
+	string response;
 
+	// Setup buffer
+	char buffer[65535];	
+	memset(buffer, '\0', sizeof(buffer));
+    int len;
+    
+    // Read incoming traffic
     while(true)
     {
         len = BIO_read(*bio, buffer, sizeof(buffer)-1);
+        
+        // Check end of transmission
         if(len <= 0)
         	break;
+
+        // Add null byte to the end of the message
         buffer[len] = 0;
 
+        // Append to response
         response += buffer;
     }
 
@@ -294,7 +324,10 @@ string Feed::readResponse(BIO **bio)
 
 bool Feed::checkHeader(string content)
 {
+	// Read response code
 	string responseCode(content.substr(9, 3)); 
+
+	// Check response code
 	if(responseCode != "200")
 	{
 		cerr << "ERROR: Unexpected HTTP response code\n";
@@ -309,27 +342,34 @@ string Feed::discardHeader(string content)
 {
 	size_t pos;
 
+	// Search for official header ending
 	pos = content.find("\r\n\r\n");
 	if(pos != string::npos)
 		pos += 4;
 	else
 	{
+		// Search for non-official header ending
 		pos = content.find("\n\n");
 		if(pos != string::npos)
 			pos += 2;
 		else
 		{
-			cerr << "Couldn't find header in response" << endl;
-			exit(1);
+			// Header not found
+			cerr << "ERROR: Couldn't find header in response\n";
+			throw false;
+			return "";
 		}
 	}   
 
+	// Return response without header
 	return content.substr(pos);
 }
 
 void Feed::parse(string content, unordered_multimap<int, string> flags)
 {
+	// Create parser for feed
 	Parser parser(content);
 
+	// Print feed
 	cout << parser.toString(flags);
 }

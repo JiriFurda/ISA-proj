@@ -42,7 +42,7 @@ class Feed
             bool connectHttpHost(BIO **bio);
             bool connectHttpsHost(BIO **bio);
             void setupCertificates(SSL_CTX **ctx);
-            void sendRequest(BIO **bio);
+            bool sendRequest(BIO **bio);
             string readResponse(BIO **bio);
             bool checkHeader(string content);
             string discardHeader(string content);

@@ -70,7 +70,8 @@ void Program::execute()
 		if(feeds[i].valid)
 		{
 			// Print entries in the feed
-			feeds[i].read();
+			if(!feeds[i].read())
+				continue; // Skip new line if something failed
 
 			// Add extra new line after the feed except very last feed
 			if(i+1 < this->feeds.size())
