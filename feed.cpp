@@ -5,19 +5,48 @@ Feed::Feed(Program *program, string url)
 	// Save pointer to the program (to have access to flags)
 	this->program = program;
 
-	this->determinePort(url);
-	this->determineHost(url);
-	this->determinePath(url);
+	// Determine basic informations from given URL
+	this->valid = false;
+	if(this->determinePort(url) && this->determineHost(url) && this->determinePath(url))
+		this->valid = true;
 }
 
 bool Feed::determinePort(string url)
 {
+	// Determine if secure connection should be used
 	if(regex_match(url, regex("^http://.*$")))
-		this->port = 80;
+		this->secure = false;
 	else if(regex_match(url, regex("^https://.*$")))
-		this->port = 443;
+		this->secure = true;
 	else
+	{
+		cerr << "ERROR: http:// or https:// is missing in URL\n";
 		return false;
+	}
+
+	// Determine what port should be used
+	smatch matches;
+	if(regex_search(url, matches, regex("(?:^http://|^https://)(?:[^/]+):([0-9]+)")))
+	{
+		// Port is specified in URL
+		
+        if(matches.size() == 2)
+        	this->port = stoi(matches[1]);
+    	else
+    	{
+    		cerr << "ERROR: Unexpected error in reading specified port\n";
+    		return false;
+    	}
+	}
+	else
+	{
+		// Port is not specified in URL
+		
+		if(this->secure)
+			this->port = 443;
+		else
+			this->port = 80;
+	}
 
 	return true;
 }
@@ -25,7 +54,7 @@ bool Feed::determinePort(string url)
 bool Feed::determineHost(string url)
 {
 	smatch matches;
-	if(regex_search(url, matches, regex("(?:^http://|^https://)([^/]+)")))
+	if(regex_search(url, matches, regex("(?:^http://|^https://)([^/:]+)")))
 	{
         if(matches.size() == 2)
         	this->host = matches[1];
@@ -33,7 +62,10 @@ bool Feed::determineHost(string url)
     		return false;
 	}
 	else
+	{
+		cerr << "ERROR: Cannot determine hostname for connection\n";
 		return false;
+	}
 
 	return true;
 }
@@ -46,10 +78,10 @@ bool Feed::determinePath(string url)
         if(matches.size() == 2)
         	this->path = matches[1];
     	else
-    	{
-    		cerr << "aaa";
-    		return false;
-    	}
+		{
+			cerr << "ERROR: Cannot determine path for connection\n";
+			return false;
+		}
 	}
 
 	return true;
@@ -95,13 +127,18 @@ bool Feed::closeBio(BIO **bio)
 
 bool Feed::connectHost(BIO **bio)
 {
-	if(this->port == 80)
+	if(secure == false)
 	{
 		return this->connectHttpHost(bio);
 	}
-	else if(this->port == 443)
+	else if(secure == true)
 	{
 		return this->connectHttpsHost(bio);
+	}
+	else
+	{
+		cerr << "Cannot determine if secure connection should be used\n";
+		return false;
 	}
 }
 
@@ -260,7 +297,7 @@ bool Feed::checkHeader(string content)
 	string responseCode(content.substr(9, 3)); 
 	if(responseCode != "200")
 	{
-		cerr << "ERROR: Unexpected HTTP response code " << responseCode << "\n";
+		cerr << "ERROR: Unexpected HTTP response code\n";
 	    return false;			
 	}
 

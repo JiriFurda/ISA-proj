@@ -66,10 +66,16 @@ void Program::execute()
 	// Read every feed used
 	for(int i=0; i < this->feeds.size(); i++)
 	{
-		feeds[i].read();
+		// Print only if feed is valid
+		if(feeds[i].valid)
+		{
+			// Print entries in the feed
+			feeds[i].read();
 
-		if(i+1 < this->feeds.size())
-			cout << "\n";
+			// Add extra new line after the feed except very last feed
+			if(i+1 < this->feeds.size())
+				cout << "\n";
+		}
 	}
 }
 

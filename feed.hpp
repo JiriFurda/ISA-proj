@@ -19,6 +19,9 @@ class Feed
 {
       public:
             Feed(Program *program, string url);
+
+            bool valid;
+
             bool read();
             void dumpInfo();
 
@@ -28,6 +31,7 @@ class Feed
             string path;
             int port;
             Program *program;
+            bool secure;
             
             
             bool determinePort(string url);
