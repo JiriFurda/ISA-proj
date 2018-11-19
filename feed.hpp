@@ -19,7 +19,7 @@ class Feed
 {
       public:
             Feed(Program *program, string url);
-            void read();
+            bool read();
             void dumpInfo();
 
 
@@ -34,9 +34,9 @@ class Feed
             bool determineHost(string url);
             bool determinePath(string url);  
             
-            void connectHost(BIO **bio);
-            void connectHttpHost(BIO **bio);
-            void connectHttpsHost(BIO **bio);
+            bool connectHost(BIO **bio);
+            bool connectHttpHost(BIO **bio);
+            bool connectHttpsHost(BIO **bio);
             void setupCertificates(SSL_CTX **ctx);
             void sendRequest(BIO **bio);
             string readResponse(BIO **bio);

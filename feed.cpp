@@ -61,36 +61,42 @@ void Feed::dumpInfo()
 	cout << this->path << "\n";
 }
 
-void Feed::read()
+bool Feed::read()
 {
 	BIO *bio;
 
-	this->connectHost(&bio);
+	if(!this->connectHost(&bio))
+	{
+		BIO_free_all(bio);
+		return false;
+	}
+
 	this->sendRequest(&bio);
 	string response = this->readResponse(&bio);
 	string content = this->discardHeader(response);
 
-    ERR_print_errors_fp(stderr);
     BIO_free_all(bio);
 
     this->parse(content, this->program->flags);
+
+    return true;
 }
 
 
-void Feed::connectHost(BIO **bio)
+bool Feed::connectHost(BIO **bio)
 {
 	if(this->port == 80)
 	{
-		this->connectHttpHost(bio);
+		return this->connectHttpHost(bio);
 	}
 	else if(this->port == 443)
 	{
-		this->connectHttpsHost(bio);
+		return this->connectHttpsHost(bio);
 	}
 }
 
 
-void Feed::connectHttpHost(BIO **bio)
+bool Feed::connectHttpHost(BIO **bio)
 {
 	SSL_load_error_strings();
 	ERR_load_BIO_strings();
@@ -99,35 +105,36 @@ void Feed::connectHttpHost(BIO **bio)
 	*bio = BIO_new_connect(string(this->host+":"+to_string(this->port)).c_str());
 	if(*bio == NULL)
 	{
-		fprintf(stderr, "Error: Couldn't create connection");
-		exit(1);		
+		cerr << "ERROR: Couldn't create connection\n";
+		return false;		
 	}
 
 	if(BIO_do_connect(*bio) <= 0)
 	{
-		fprintf(stderr, "Error: Couldn't connect");
-		exit(1);		
+		cerr << "ERROR: Connection failed\n";
+		return false;		
 	}
+
+	return true;
 }
 
 
-void Feed::connectHttpsHost(BIO **bio)
+bool Feed::connectHttpsHost(BIO **bio)
 {
 	SSL *ssl;
     SSL_CTX *ctx;
 
-
 	SSL_load_error_strings();
 	ERR_load_BIO_strings();
 	OpenSSL_add_all_algorithms();
-
 	SSL_library_init();
+
     ctx = SSL_CTX_new(SSLv23_client_method());
 
     if (ctx == NULL)
     {
-            std::cout << "Ctx is null" << std::endl;
-            ERR_print_errors_fp(stderr);
+        cerr << "ERROR: Couldn't create context strucutre\n";
+        return false;
     }
 
     this->setupCertificates(&ctx);
@@ -141,21 +148,19 @@ void Feed::connectHttpsHost(BIO **bio)
 
     if(BIO_do_connect(*bio) <= 0)
     {
-            std::cout<<"Failed connection" << std::endl;
-            /* Handle failed connection */
-    } else {
-            //std::cout<<"Connected" << std::endl;
+        cerr << "ERROR: Connection failed\n";
+        return false;
     }
 
-    if(SSL_get_verify_result(ssl) != X509_V_OK)
+    long int verifyResult = SSL_get_verify_result(ssl);
+    if(verifyResult != X509_V_OK &&
+    	verifyResult != X509_V_ERR_DEPTH_ZERO_SELF_SIGNED_CERT)
     {
-        /* Handle the failed verification */
-        std::cout << "Failed get verify result " << std::endl;
-
-        fprintf(stderr, "Certificate verification error: %i\n", SSL_get_verify_result(ssl));
-    //do not exit here (but some more verification would not hurt) because if you are using a self-signed certificate you will receive 18
-    //18 X509_V_ERR_DEPTH_ZERO_SELF_SIGNED_CERT which is not an error
+    	cerr << "ERROR: Certificate verification failed\n";
+    	return false;
     }
+
+    return true;
 }
 
 void Feed::setupCertificates(SSL_CTX **ctx)
@@ -177,7 +182,7 @@ void Feed::setupCertificates(SSL_CTX **ctx)
 		// Process parameter -c
 		if(flag.first == 'c')
 		{
-			if(!SSL_CTX_load_verify_locations(*ctx, NULL, flag.second.c_str()))
+			if(!SSL_CTX_load_verify_locations(*ctx, flag.second.c_str(), NULL))
 			{
 				cerr << "ERROR: File specified in -c parameter failed to load\n";
 			}
@@ -185,7 +190,7 @@ void Feed::setupCertificates(SSL_CTX **ctx)
 		// Process parameter -C
 		else if(flag.first == 'C')
 		{
-			if(!SSL_CTX_load_verify_locations(*ctx, flag.second.c_str(), NULL))
+			if(!SSL_CTX_load_verify_locations(*ctx, NULL, flag.second.c_str()))
 			{
 				cerr << "ERROR: Location specified in -C parameter failed to load\n";
 			}
