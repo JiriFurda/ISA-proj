@@ -61,7 +61,7 @@ void Program::processArguments(int argc, char* argv[])
 		// Check wrong arguments combination
 		if(this->flags.count('f'))
 		{
-			cerr << "Error: Cannot combine URL parameter with -f option";
+			cerr << "Error: Cannot combine URL parameter with -f option\n";
 			exit(1);			
 		}
 
@@ -137,7 +137,7 @@ void Program::processFeedFile()
 		}
 		else
 		{
-			fprintf(stderr, "Error: File problem");
+			cerr << "Error: File problem\n";
 			exit(1);
 		}
 	}
