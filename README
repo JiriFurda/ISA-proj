@@ -1,0 +1,31 @@
+Čtečka novinek ve formátu Atom s podporou TLS
+Projekt do ISA 2018 - xfurda00
+
+Popis:
+Program umožnující čtení novinek ve formátu RSS a Atom. Umožňuje číst nadpisy, URL adresy, autory a datum daných článku. Umístění novinek může být jedna URL specifikována paramaterem spuštění nebo i více URL v případě použití souboru a paramateru -f. Program také umožňuje využít šifrované připojení a specifikovat vlastní certifikáty.
+
+Konvence spuštění:
+feedreader <URL | -f <feedfile>> [-c <certfile>] [-C <certaddr>] [-T] [-a] [-u]
+
+Příkldy spuštění:
+feedreader https://tools.ietf.org/dailydose/dailydose_atom.xml
+feedreader https://tools.ietf.org/dailydose/dailydose_atom.xml -u
+feedreader https://tools.ietf.org/dailydose/dailydose_atom.xml -u -T
+feedreader https://tools.ietf.org/dailydose/dailydose_atom.xml -C /dev/null
+
+Odevzdané soubory:
+Makefile
+README
+src/entry.cpp
+src/entry.hpp
+src/feed.cpp
+src/feed.hpp
+src/main.cpp
+src/main.hpp
+src/parser.cpp
+src/parser.hpp
+src/program.cpp
+src/program.hpp
+
+Omezení:
+Nejsou implementovany vlastní testy
