@@ -10,6 +10,19 @@ Program::Program(int argc, char* argv[])
 
 void Program::processArguments(int argc, char* argv[])
 {
+	// Reorder arguments for server eva
+	if(argc > 1 && argv[1][0] != '-')
+	{
+		char* url = argv[1];
+
+		for(int i = 2; i < argc; i++)
+		{
+			argv[i-1] = argv[i];
+		}
+
+		argv[argc-1] = url;
+	}
+
 	// Read arguments
 	int opt;
 	while((opt = getopt(argc, argv, "f:c:C:Tau")) != -1)
