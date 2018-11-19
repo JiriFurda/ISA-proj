@@ -16,11 +16,13 @@ Parser::Parser(string content)
 
 void Parser::init(string content)
 {
-	this->doc = xmlParseDoc((const xmlChar *)content.c_str());
+	//this->doc = xmlParseDoc((const xmlChar *)content.c_str());
+	this->doc = xmlReadDoc((const xmlChar *)content.c_str(), NULL, NULL, XML_PARSE_NOERROR | XML_PARSE_NOWARNING);
 
 	if(this->doc == NULL)
 	{
 		cerr << "Parsing failed" << endl;
+		//cout << content;
 		exit(1);
 	}
 }
