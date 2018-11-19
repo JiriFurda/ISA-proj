@@ -132,6 +132,13 @@ bool Feed::read()
 		return this->closeBio(&bio);
 	}
 
+	// Check for empty content
+	if(content.length() == 0)
+	{
+		cerr << "WARNING: Content is empty\n";
+		return this->closeBio(&bio);
+	}
+
 	// Close connection
     BIO_free_all(bio);
 
