@@ -143,7 +143,8 @@ bool Feed::read()
     BIO_free_all(bio);
 
     // Parse the response
-    this->parse(content, this->program->flags);
+    if(!this->parse(content, this->program->flags))
+    
 
     return true;
 }
@@ -372,11 +373,17 @@ string Feed::discardHeader(string content)
 	return content.substr(pos);
 }
 
-void Feed::parse(string content, unordered_multimap<int, string> flags)
+bool Feed::parse(string content, unordered_multimap<int, string> flags)
 {
 	// Create parser for feed
 	Parser parser(content);
 
+	// Check if successful
+	if(!parser.valid)
+		return false;
+
 	// Print feed
 	cout << parser.toString(flags);
+
+	return true;
 }

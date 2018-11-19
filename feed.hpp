@@ -46,7 +46,7 @@ class Feed
             string readResponse(BIO **bio);
             bool checkHeader(string content);
             string discardHeader(string content);
-            void parse(string content, unordered_multimap<int, string> flags);
+            bool parse(string content, unordered_multimap<int, string> flags);
 };
 
 #endif // __FEED_H_INCLUDED__

@@ -14,6 +14,7 @@ class Parser
       public:
             Parser(string content);
             string toString(unordered_multimap<int, string> flags);
+            bool valid;
 
       private:
             bool format;
@@ -25,8 +26,8 @@ class Parser
             static bool RSS;
             static bool Atom;
 
-            void init(string content);
-            void determineFormat();
+            bool init(string content);
+            bool determineFormat();
             void parse();
             void RSS_parse();
             void Atom_parse();
