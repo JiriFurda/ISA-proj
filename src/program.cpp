@@ -10,6 +10,10 @@ Program::Program(int argc, char* argv[])
 
 void Program::processArguments(int argc, char* argv[])
 {
+	// Check for no parameters
+	if(argc == 1)
+		this->printHelpExit();
+
 	// Reorder arguments for server eva
 	if(argc > 1 && argv[1][0] != '-')
 	{
@@ -45,8 +49,8 @@ void Program::processArguments(int argc, char* argv[])
 
 			// Wrong flag
 			default: 
-				cerr << "Usage: feedreader <URL | -f <feedfile>> [-c <certfile>] [-C <certaddr>] [-T] [-a] [-u]\n";
-				exit(1);
+				this->printHelpExit();
+				break;
 	   }
 	}
 
@@ -57,7 +61,7 @@ void Program::processArguments(int argc, char* argv[])
 		// Check wrong arguments combination
 		if(this->flags.count('f'))
 		{
-			fprintf(stderr, "Error: Cannot combine URL parameter with -f option");
+			cerr << "Error: Cannot combine URL parameter with -f option";
 			exit(1);			
 		}
 
@@ -73,6 +77,11 @@ void Program::processArguments(int argc, char* argv[])
 	}	
 }
 
+void Program::printHelpExit()
+{
+	cerr << "Usage: feedreader <URL | -f <feedfile>> [-c <certfile>] [-C <certaddr>] [-T] [-a] [-u]\n";
+	exit(2);
+}
 
 void Program::execute()
 {

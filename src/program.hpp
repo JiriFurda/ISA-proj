@@ -32,6 +32,7 @@ class Program
             void processArguments(int argc, char* argv[]);
             void execute();
             void processFeedFile();
+            void printHelpExit();
 
 };
 
