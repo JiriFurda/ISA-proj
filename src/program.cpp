@@ -137,8 +137,7 @@ void Program::processFeedFile()
 		}
 		else
 		{
-			cerr << "Error: File problem\n";
-			exit(1);
+			cerr << "Error: Loading file problem\n";
 		}
 	}
 }
