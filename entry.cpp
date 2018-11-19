@@ -107,10 +107,6 @@ string Entry::toString(unordered_multimap<int, string> flags) const
 			  output += "Autor: " + author + '\n';
 			}
 		}
-
-		// Extra line between entries
-		if(printURL || printUpdated || printAuthor)
-			output += '\n';
 	}
 	
 	return output;

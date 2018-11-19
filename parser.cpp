@@ -181,9 +181,13 @@ string Parser::toString(unordered_multimap<int, string> flags)
 	if(this->title.length())
 		output += this->title + "\n";
 
-	for(auto const& entry: this->entries)
+	for(int i=0; i < this->entries.size(); i++)
 	{
-    	output += entry.toString(flags);
+		output += this->entries[i].toString(flags);
+
+		// Extra line between entries
+		if((flags.count('u') || flags.count('T') || flags.count('a')) && i+1 < this->entries.size())
+			output += '\n';
 	}
 
 	return output;

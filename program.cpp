@@ -29,7 +29,7 @@ void Program::processArguments(int argc, char* argv[])
 				this->flags.insert({opt, optarg});
 				break;
 			default: // '?' 
-				fprintf(stderr, "Usage: %s <URL | -f <feedfile>> [-c <certfile>] [-C <certaddr>] [-T] [-a] [-u]\n", argv[0]);
+				cerr << "Usage: feedreader <URL | -f <feedfile>> [-c <certfile>] [-C <certaddr>] [-T] [-a] [-u]\n";
 				exit(1);
 	   }
 	}
