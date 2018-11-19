@@ -2,15 +2,18 @@
 
 Entry::Entry(xmlNodePtr cur)
 {
-	// Get node containing items
+	// Dive into entry node
 	cur = cur->xmlChildrenNode;
 
+	// Loop throught nodes in entry
 	while(cur != NULL)
 	{
+		// Parser <title> node
 		if(!xmlStrcmp(cur->name, (const xmlChar *)"title"))
 		{
 			this->parseTitle(cur);
 		}
+		// Parse <pubDate> node or <updated> node or <dc:date> node
 		else if(!xmlStrcmp(cur->name, (const xmlChar *)"pubDate") ||
 				!xmlStrcmp(cur->name, (const xmlChar *)"updated") ||
 				(
@@ -21,24 +24,29 @@ Entry::Entry(xmlNodePtr cur)
 		{
 			this->parseUpdated(cur);
 		}
+		// Parse <dc:creator> node
 		else if(!xmlStrcmp(cur->name, (const xmlChar *)"creator") &&
 				cur->ns &&
 				!xmlStrcmp(cur->ns->prefix, (const xmlChar *)"dc"))
 		{
 			this->parseDcCreator(cur);
 		}
+		// Parse <author> node
 		else if(!xmlStrcmp(cur->name, (const xmlChar *)"author"))
 		{
 			this->parseAuthor(cur);
 		}
+		// Parse <link> node
 		else if(!xmlStrcmp(cur->name, (const xmlChar *)"link"))
 		{
 			this->parseLink(cur);
 		}
 
+		// Move to next node
 		cur = cur->next;
 	}	
 }
+
 
 void Entry::parseTitle(xmlNodePtr cur)
 {
@@ -46,11 +54,13 @@ void Entry::parseTitle(xmlNodePtr cur)
 		this->title = string((char*)XML_GET_CONTENT(cur->children));
 }
 
+
 void Entry::parseUpdated(xmlNodePtr cur)
 {
 	if(cur->children)
 		this->updated = string((char*)XML_GET_CONTENT(cur->children));
 }
+
 
 void Entry::parseDcCreator(xmlNodePtr cur)
 {
@@ -58,31 +68,39 @@ void Entry::parseDcCreator(xmlNodePtr cur)
 		this->authors.push_back(string((char*)XML_GET_CONTENT(cur->children)));
 }
 
+
 void Entry::parseAuthor(xmlNodePtr cur)
 {
+	// <author> has no children nodes
 	if(cur->xmlChildrenNode == NULL)
 	{
 		if(cur->children)
 			this->authors.push_back(string((char*)XML_GET_CONTENT(cur->children)));
 	}
+	// <author> has children nodes
 	else
 	{
-		cur = cur->xmlChildrenNode; // Dive into <author> tag
+		// Dive into <author> node
+		cur = cur->xmlChildrenNode; 
 
+		// Loop throught nodes in <author> node
 		while(cur != NULL)
 		{
+			// Parse <name> node
 			if(!xmlStrcmp(cur->name, (const xmlChar *)"name"))
 				this->authors.push_back(string((char*)XML_GET_CONTENT(cur->children)));
 
+			// Move to next node
 			cur = cur->next;
 		}
 	}
 }
 
+
 void Entry::parseLink(xmlNodePtr cur)
 {
 	xmlChar *href;
-	if(href = xmlGetProp(cur, (const xmlChar *)"href"))
+	if((href = xmlGetProp(cur, (const xmlChar *)"href")))
 	{
 		this->url = string((char*)href);
 	}
@@ -95,14 +113,14 @@ string Entry::toString(unordered_multimap<int, string> flags) const
 	bool printUpdated = flags.count('T');
 	bool printAuthor = flags.count('a');
 
-
+	// Title
 	if(this->title.length())
 		output += this->title;
 	else
 		output += "N/A";
 	output += "\n";
 
-
+	// URL
 	if(printURL)
 	{
 		output += "URL: ";
@@ -115,7 +133,7 @@ string Entry::toString(unordered_multimap<int, string> flags) const
 		output += "\n";
 	}
 
-
+	// Updated
 	if(printUpdated)
 	{
 		output += "Aktualizace: ";
@@ -128,7 +146,7 @@ string Entry::toString(unordered_multimap<int, string> flags) const
 		output += "\n";
 	}
 
-
+	// Author
 	if(printAuthor)
 	{
 		if(this->authors.size() == 0)
@@ -147,6 +165,6 @@ string Entry::toString(unordered_multimap<int, string> flags) const
 		}
 	}
 	
-	
+	// Return string
 	return output;
 }
