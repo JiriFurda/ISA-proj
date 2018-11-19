@@ -42,24 +42,28 @@ Entry::Entry(xmlNodePtr cur)
 
 void Entry::parseTitle(xmlNodePtr cur)
 {
-	this->title = string((char*)XML_GET_CONTENT(cur->children));
+	if(cur->children)
+		this->title = string((char*)XML_GET_CONTENT(cur->children));
 }
 
 void Entry::parseUpdated(xmlNodePtr cur)
 {
-	this->updated = string((char*)XML_GET_CONTENT(cur->children));
+	if(cur->children)
+		this->updated = string((char*)XML_GET_CONTENT(cur->children));
 }
 
 void Entry::parseDcCreator(xmlNodePtr cur)
 {
-	this->authors.push_back(string((char*)XML_GET_CONTENT(cur->children)));
+	if(cur->children)
+		this->authors.push_back(string((char*)XML_GET_CONTENT(cur->children)));
 }
 
 void Entry::parseAuthor(xmlNodePtr cur)
 {
 	if(cur->xmlChildrenNode == NULL)
 	{
-		this->authors.push_back(string((char*)XML_GET_CONTENT(cur->children)));
+		if(cur->children)
+			this->authors.push_back(string((char*)XML_GET_CONTENT(cur->children)));
 	}
 	else
 	{
