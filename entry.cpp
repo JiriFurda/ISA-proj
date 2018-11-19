@@ -90,24 +90,59 @@ string Entry::toString(unordered_multimap<int, string> flags) const
 	bool printURL = flags.count('u');
 	bool printUpdated = flags.count('T');
 	bool printAuthor = flags.count('a');
-	
+
+
 	if(this->title.length())
+		output += this->title;
+	else
+		output += "N/A";
+	output += "\n";
+
+
+	if(printURL)
 	{
-		output += this->title + '\n';
+		output += "URL: ";
 
-		if(printURL && this->url.length())
-			output += "URL: " + this->url + '\n';
+		if(this->url.length())
+			output += this->url;
+		else 
+			output += "N/A";
 
-		if(printUpdated && this->updated.length())
-			output += "Aktualizace: " + this->updated + '\n';
+		output += "\n";
+	}
 
-		if(printAuthor)
+
+	if(printUpdated)
+	{
+		output += "Aktualizace: ";
+
+		if(this->updated.length())
+			output += this->updated;
+		else 
+			output += "N/A";
+
+		output += "\n";
+	}
+
+
+	if(printAuthor)
+	{
+		if(this->authors.size() == 0)
+			output += "Autor: N/A\n";
+
+		for(const string& author : this->authors)
 		{
-			for(const string& author : this->authors) {
-			  output += "Autor: " + author + '\n';
-			}
+			output += "Autor: ";
+
+			if(author.length())
+				output += author;
+			else 
+				output += "N/A";
+
+			output += "\n";
 		}
 	}
+	
 	
 	return output;
 }
