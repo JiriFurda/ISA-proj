@@ -2,7 +2,6 @@
 Bachelor study at FIT VUT Brno  
 5th semester - winter 2018  
 Subject: **Network Applications and Network Administration (ISA)**
-
 Task: [zadani.pdf](./zadani.pdf) (in Czech)
 
 ## Score
